@@ -119,6 +119,10 @@ def safe_zip_files(data: bytes, label: str) -> dict[str, bytes]:
     with zipfile.ZipFile(io.BytesIO(data)) as archive:
         total = 0
         for entry in archive.infolist():
+            # ZipInfo normalizes Windows separators and truncates NUL bytes
+            # while reading too. Check the raw name before trusting filename.
+            if entry.orig_filename != entry.filename:
+                raise VerificationError(f"Unsafe ZIP entry in {label}: {entry.orig_filename!r}")
             if entry.is_dir():
                 continue
             path = PurePosixPath(entry.filename)

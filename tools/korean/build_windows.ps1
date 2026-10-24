@@ -111,6 +111,8 @@ try {
     if ((Get-FileHash -LiteralPath $OriginalZip -Algorithm SHA256).Hash.ToLowerInvariant() -ne $ReleaseHash) {
         throw 'The official Windows 2.0.3 ZIP did not match its pinned SHA-256.'
     }
+    Invoke-Checked $Python @((Join-Path $PSScriptRoot 'test_package_windows.py'),
+        '--original', $OriginalZip, '-v')
 
     # Isolated vcpkg snapshot: these eight ports match the original release job.
     # Do not use or update the runner's global vcpkg installation.
@@ -155,9 +157,6 @@ try {
     }
     Invoke-Checked $Python @((Join-Path $PSScriptRoot 'test_generate_strings.py'),
         '--fmt-include', $FmtInclude, '-v')
-    Invoke-Checked $Python @((Join-Path $PSScriptRoot 'test_package_windows.py'),
-        '--original', $OriginalZip, '-v')
-
     # Building only the host avoids rebuilding or replacing the bundled mods.
     # The host target still generates its exports, import library and symdb.
     Invoke-Checked $Cmake @('--build', $CmakeBuild, '--target', 'dusklight', '--parallel', [string] $Parallel)

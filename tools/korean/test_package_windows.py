@@ -9,6 +9,7 @@ from pathlib import Path
 import stat
 import sys
 import unittest
+from unittest.mock import patch
 import zipfile
 
 from package_windows import (PACKAGE_ADDITIONS, allowed_source, original_files,
@@ -23,6 +24,12 @@ def zip_bytes(entries: list[tuple[str | zipfile.ZipInfo, bytes]]) -> bytes:
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w") as archive:
         for name, data in entries:
+            if isinstance(name, str):
+                raw_name = name
+                name = zipfile.ZipInfo(raw_name)
+                # ZipInfo normalizes on Windows. The fixture must serialize
+                # the intended invalid raw name so the reader sees it.
+                name.filename = raw_name
             archive.writestr(name, data)
     return buffer.getvalue()
 
@@ -39,10 +46,16 @@ class PackageBoundaryTests(unittest.TestCase):
             self.assertFalse(allowed_source(path), path)
 
     def test_zip_rejects_traversal_and_windows_path_aliases(self) -> None:
-        for name in ("../config.json", "/save.gci", "C:/save.gci", "res\\ko.json",
-                     "res//ko.json", "res/./ko.json"):
-            with self.subTest(name=name), self.assertRaises(VerificationError):
-                safe_zip_files(zip_bytes([(name, b"bad")]), "test")
+        for separator, alternate in (("/", None), ("\\", "/")):
+            with patch.object(zipfile.os, "sep", separator), patch.object(zipfile.os, "altsep", alternate):
+                for name in ("../config.json", "/save.gci", "C:/save.gci", "res\\ko.json",
+                             "res//ko.json", "res/./ko.json", "res/ko.json\0.exe"):
+                    with self.subTest(separator=separator, name=name):
+                        fixture = zip_bytes([(name, b"bad")])
+                        with zipfile.ZipFile(io.BytesIO(fixture)) as archive:
+                            self.assertEqual(archive.infolist()[0].orig_filename, name)
+                        with self.assertRaises(VerificationError):
+                            safe_zip_files(fixture, "test")
 
     def test_zip_rejects_case_collisions(self) -> None:
         with self.assertRaisesRegex(VerificationError, "Duplicate"):
