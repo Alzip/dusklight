@@ -204,9 +204,7 @@ void main01(void) {
     }
 
     // Loader Init
-#if !TARGET_PC
     mDoDvdThd_callback_c::create((mDoDvdThd_callback_func)LOAD_COPYDATE, NULL);
-#endif
 
     OSReport("Calling fapGm_Create()...\n");
     fapGm_Create();
