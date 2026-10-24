@@ -141,6 +141,16 @@ Button& TabBar::add_tab(const Rml::String& title, TabCallback callback) {
     return *mTabs.back().button;
 }
 
+bool TabBar::set_tab_label(const Rml::String& canonical_title, const Rml::String& display_text) {
+    for (auto& tab : mTabs) {
+        if (tab.title == canonical_title) {
+            tab.button->set_text(display_text);
+            return true;
+        }
+    }
+    return false;
+}
+
 void TabBar::clear_tabs() {
     mProps.selectedTabIndex = -1;
     mLastFocusedTabIndex = -1;

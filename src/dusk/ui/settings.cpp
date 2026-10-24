@@ -1,4 +1,6 @@
 #include "settings.hpp"
+#include "korean.hpp"
+#include "korean_controls.hpp"
 
 #include "bool_button.hpp"
 #include "controller_config.hpp"
@@ -53,52 +55,52 @@ namespace dusk::ui {
 namespace {
 
 constexpr std::array kCardFileTypes = {
-    "Card Image",
-    "GCI Folder",
+    korean::text("Card Image"),
+    korean::text("GCI Folder"),
 };
 
 constexpr std::array kFpsOverlayCornerNames = {
-    "Top Left",
-    "Top Right",
-    "Bottom Left",
-    "Bottom Right",
+    korean::text("Top Left"),
+    korean::text("Top Right"),
+    korean::text("Bottom Left"),
+    korean::text("Bottom Right"),
 };
 
 constexpr std::array kInterpolationModes = {
-    "Off",
-    "Capped",
-    "Unlimited",
+    korean::text("Off"),
+    korean::text("Capped"),
+    korean::text("Unlimited"),
 };
 
 constexpr std::array kAudioOutputModeNames = {
-    "Stereo (Speakers)",
-    "Stereo (Headphones)",
-    "5.1 Surround",
-    "7.1 Surround",
+    korean::text("Stereo (Speakers)"),
+    korean::text("Stereo (Headphones)"),
+    korean::text("5.1 Surround"),
+    korean::text("7.1 Surround"),
 };
 
 constexpr std::array kLetterboxModes = {
-    "Off",
-    "On",
-    "Only During Gameplay",
-    "Only During Cutscenes",
+    korean::text("Off"),
+    korean::text("On"),
+    korean::text("Only During Gameplay"),
+    korean::text("Only During Cutscenes"),
 };
 
 constexpr std::array kTouchTargetingLabels = {
-    "Hybrid",
-    "Hold",
-    "Switch",
+    korean::text("Hybrid"),
+    korean::text("Hold"),
+    korean::text("Switch"),
 };
 
 constexpr std::array kTouchTargetingDescriptions = {
-    "Tap once to lock on when a target is found. Double-tap when none is found to hold L.",
-    "L stays held only while your finger is on the button.",
-    "Tap L to keep it held. Tap again to release it.",
+    korean::text("Tap once to lock on when a target is found. Double-tap when none is found to hold L."),
+    korean::text("L stays held only while your finger is on the button."),
+    korean::text("Tap L to keep it held. Tap again to release it."),
 };
 
 constexpr std::array kGyroInputModeLabels = {
-    "Sensor",
-    "Mouse",
+    korean::text("Sensor"),
+    korean::text("Mouse"),
 };
 
 constexpr std::array kMenuScalingModeLabels = {
@@ -108,17 +110,17 @@ constexpr std::array kMenuScalingModeLabels = {
 };
 
 constexpr std::array kAlwaysGreatspinModes = {
-    "Off",
-    "After Learning Skill",
-    "Always",
+    korean::text("Off"),
+    korean::text("After Learning Skill"),
+    korean::text("Always"),
 };
 
 constexpr std::array kMagicArmorModes = {
-    "Normal",
-    "On Damage",
-    "Double Defense",
-    "Invincible",
-    "Cosmetic",
+    korean::text("Normal"),
+    korean::text("On Damage"),
+    korean::text("Double Defense"),
+    korean::text("Invincible"),
+    korean::text("Cosmetic"),
 };
 
 bool try_parse_backend(std::string_view backend, AuroraBackend& outBackend) {
@@ -165,7 +167,7 @@ bool try_parse_backend(std::string_view backend, AuroraBackend& outBackend) {
 std::string_view backend_name(AuroraBackend backend) {
     switch (backend) {
     default:
-        return "Auto";
+        return korean::text("Auto");
     case BACKEND_D3D12:
         return "D3D12";
     case BACKEND_D3D11:
@@ -246,7 +248,7 @@ Rml::String graphics_backend_display_name() {
 Rml::String configured_data_path_display_name() {
     const auto path = data::abbreviated_path_string(data::configured_data_path());
     if (path.empty()) {
-        return "(none)";
+        return korean::text("(none)");
     }
 
     auto display = borealis::io::display_name(path);
@@ -260,7 +262,7 @@ class DataFolderPathText : public Component {
 public:
     explicit DataFolderPathText(Rml::Element* parent)
         : Component(append(parent, "data-folder-path")) {
-        append_text_element(mRoot, "small", "Current data folder:");
+        append_text_element(mRoot, "small", korean::text("Current data folder:"));
         mPath = append(mRoot, "file-path");
     }
 
@@ -284,12 +286,12 @@ void show_data_folder_error_modal(std::string_view message) {
         modal.pop();
     };
     push_document(std::make_unique<Modal>(Modal::Props{
-        .title = "Data Folder Not Changed",
+        .title = korean::text("Data Folder Not Changed"),
         .bodyText = Rml::String{message},
         .actions =
             {
                 ModalAction{
-                    .label = "OK",
+                    .label = korean::text("OK"),
                     .onPressed = dismiss,
                 },
             },
@@ -306,7 +308,7 @@ void data_folder_dialog_callback(borealis::file_select::Result result) {
         return;
     }
     if (result.status != borealis::file_select::Status::Selected || result.locations.empty()) {
-        show_data_folder_error_modal("Dusklight could not open the folder picker.");
+        show_data_folder_error_modal(korean::text("Dusklight could not open the folder picker."));
         return;
     }
 
@@ -318,32 +320,32 @@ void data_folder_dialog_callback(borealis::file_select::Result result) {
 
     if (dataPathError.empty()) {
         dataPathError =
-            fmt::format("{} could not use the selected folder as its data folder.", AppName);
+            fmt::format(korean::text("{} could not use the selected folder as its data folder."), AppName);
     }
     show_data_folder_error_modal(dataPathError);
 }
 
 const Rml::String kInternalResolutionHelpText =
-    "Configure the resolution used for rendering the game. Higher values are more demanding on "
-    "your graphics hardware.";
+    korean::text("Configure the resolution used for rendering the game. Higher values are more demanding on "
+    "your graphics hardware.");
 const Rml::String kShadowResolutionHelpText =
-    "Configure the shadow-map resolution. Higher values improve shadow quality but increase GPU "
-    "and memory usage.";
+    korean::text("Configure the shadow-map resolution. Higher values improve shadow quality but increase GPU "
+    "and memory usage.");
 const Rml::String kResamplerHelpText =
-    "Configure the sampling method used when scaling the internal resolution for final presentation.";
+    korean::text("Configure the sampling method used when scaling the internal resolution for final presentation.");
 const Rml::String kBloomHelpText =
-    "Configure the post-processing bloom effect. Classic uses the original bloom pass; Dusklight uses "
-    "a higher-quality bloom pass.";
+    korean::text("Configure the post-processing bloom effect. Classic uses the original bloom pass; Dusklight uses "
+    "a higher-quality bloom pass.");
 const Rml::String kBloomBrightnessHelpText =
-    "Configure bloom intensity. Higher values make bright areas glow more strongly.";
+    korean::text("Configure bloom intensity. Higher values make bright areas glow more strongly.");
 const Rml::String kDepthOfFieldHelpText =
-    "Configure the post-processing depth-of-field effect. Classic uses the original depth-of-field pass;"
-    " Dusklight uses a higher-quality depth-of-field pass.";
+    korean::text("Configure the post-processing depth-of-field effect. Classic uses the original depth-of-field pass;"
+    " Dusklight uses a higher-quality depth-of-field pass.");
 const Rml::String kUnlockFramerateHelpText =
-    "<br/>Uses inter-frame interpolation to enable higher frame rates.<br/><br/>May introduce minor "
-    "visual artifacts or animation glitches.";
+    korean::text("<br/>Uses inter-frame interpolation to enable higher frame rates.<br/><br/>May introduce minor "
+    "visual artifacts or animation glitches.");
 const Rml::String kTextureReplacementHelpText =
-    "Enable installed texture replacements.";
+    korean::text("Enable installed texture replacements.");
 
 int float_setting_percent(ConfigVar<float>& var) {
     return static_cast<int>(var.getValue() * 100.0f + 0.5f);
@@ -356,7 +358,7 @@ bool gyro_enabled() {
 Rml::String touch_targeting_label(TouchTargeting targeting) {
     const auto index = static_cast<size_t>(targeting);
     if (index >= kTouchTargetingLabels.size()) {
-        return "Unknown";
+        return korean::text("Unknown");
     }
     return kTouchTargetingLabels[index];
 }
@@ -371,7 +373,7 @@ struct ConfigBoolProps {
 
 SelectButton& config_bool_select(
     Pane& leftPane, Pane& rightPane, ConfigVar<bool>& var, ConfigBoolProps props) {
-    auto& button = leftPane.add_child<BoolButton>(BoolButton::Props{
+    auto& button = leftPane.add_child<KoreanBoolButton>(BoolButton::Props{
         .key = std::move(props.key),
         .icon = std::move(props.icon),
         .getValue = [&var] { return var.getValue(); },
@@ -497,13 +499,13 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
             leftPane.register_control(
                 leftPane
                     .add_select_button({
-                        .key = "Disc Image",
+                        .key = korean::text("Disc Image"),
                         .getValue =
                             [] {
                                 const auto& path = prelaunch_state().configuredDiscPath;
                                 std::string display;
                                 if (path.empty()) {
-                                    display = "(none)";
+                                    display = korean::text("(none)");
                                 } else {
                                     display = borealis::io::display_name(path);
                                     if (display.empty()) {
@@ -521,30 +523,30 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
                     })
                     .on_pressed([] { open_iso_picker(); }),
                 rightPane, [](Pane& pane) {
-                    pane.add_rml("Set the disc image that Dusklight uses to launch the game.<br/><br/>"
-                                 "Changes require a restart.");
+                    pane.add_rml(korean::text("Set the disc image that Dusklight uses to launch the game.<br/><br/>"
+                                 "Changes require a restart."));
                 });
             if (data::manager().capabilities().canChangeLocation &&
                 borealis::file_select::capabilities().canOpenFolder)
             {
                 leftPane.register_control(
                     leftPane.add_select_button({
-                        .key = "Data Folder",
+                        .key = korean::text("Data Folder"),
                         .getValue = [] { return configured_data_path_display_name(); },
                         .isModified = [] { return data::is_data_path_restart_pending(); },
                     }),
                     rightPane, [](Pane& pane) {
-                        pane.add_text("The data folder is where Dusklight stores settings, saves, "
-                                      "logs, texture replacements, and other app data.");
+                        pane.add_text(korean::text("The data folder is where Dusklight stores settings, saves, "
+                                      "logs, texture replacements, and other app data."));
                         pane.add_child<DataFolderPathText>();
 #if DUSK_CAN_OPEN_DATA_FOLDER
-                        pane.add_button("Open Data Folder").on_pressed([] {
+                        pane.add_button(korean::text("Open Data Folder")).on_pressed([] {
                             if (data::open_data_path()) {
                                 mDoAud_seStartMenu(kSoundClick);
                             }
                         });
 #endif
-                        pane.add_button("Change Data Folder").on_pressed([] {
+                        pane.add_button(korean::text("Change Data Folder")).on_pressed([] {
                             const auto defaultLocation =
                                 borealis::io::fs_path_to_string(data::configured_data_path());
                             borealis::file_select::open_folder(
@@ -556,7 +558,7 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
                                 &data_folder_dialog_callback);
                         });
 #if defined(_WIN32)
-                        pane.add_button("Portable Mode").on_pressed([] {
+                        pane.add_button(korean::text("Portable Mode")).on_pressed([] {
                             if (data::set_portable_data_path()) {
                                 mDoAud_seStartMenu(kSoundItemChange);
                             }
@@ -564,7 +566,7 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
 #endif
                         pane.add_button(
                                 {
-                                    .text = "Reset to Default",
+                                    .text = korean::text("Reset to Default"),
                                     .isDisabled = [] { return data::is_default_data_path(); },
                                 })
                             .on_pressed([] {
@@ -572,12 +574,12 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
                                     mDoAud_seStartMenu(kSoundItemChange);
                                 }
                             });
-                        pane.add_rml("Data will be migrated automatically on restart.");
+                        pane.add_rml(korean::text("Data will be migrated automatically on restart."));
                     });
             }
             leftPane.register_control(
                 leftPane.add_select_button({
-                    .key = "Language",
+                    .key = korean::text("Language"),
                     .getValue =
                         [] {
                             return language::language_name(getSettings().game.language.getValue());
@@ -616,11 +618,11 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
                                 config::save();
                             });
                     }
-                    pane.add_rml("<br/>Changes require a restart.");
+                    pane.add_rml(korean::text("<br/>Changes require a restart."));
                 });
             leftPane.register_control(
                 leftPane.add_select_button({
-                    .key = "Graphics Backend",
+                    .key = korean::text("Graphics Backend"),
                     .getValue = [] { return graphics_backend_display_name(); },
                     .isModified = [] { return is_graphics_backend_restart_pending(); },
                 }),
@@ -639,11 +641,11 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
                                 config::save();
                             });
                     }
-                    pane.add_rml("<br/>Changes require a restart.");
+                    pane.add_rml(korean::text("<br/>Changes require a restart."));
                 });
             leftPane.register_control(
                 leftPane.add_select_button({
-                    .key = "Save File Type",
+                    .key = korean::text("Save File Type"),
                     .getValue =
                         [] {
                             return kCardFileTypes[getSettings().backend.cardFileType.getValue()];
@@ -679,16 +681,16 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
         auto& leftPane = add_child<Pane>(content, Pane::Type::Controlled);
         auto& rightPane = add_child<Pane>(content, Pane::Type::Uncontrolled);
 
-        leftPane.add_section("Display");
+        leftPane.add_section(korean::text("Display"));
 
-        leftPane.register_control(leftPane.add_button("Toggle Fullscreen").on_pressed([] {
+        leftPane.register_control(leftPane.add_button(korean::text("Toggle Fullscreen")).on_pressed([] {
             mDoAud_seStartMenu(kSoundItemChange);
             getSettings().video.enableFullscreen.setValue(!getSettings().video.enableFullscreen);
             VISetWindowFullscreen(getSettings().video.enableFullscreen);
             config::save();
         }),
             rightPane, [](Pane& pane) { pane.clear(); });
-        leftPane.register_control(leftPane.add_button("Restore Default Window Size").on_pressed([] {
+        leftPane.register_control(leftPane.add_button(korean::text("Restore Default Window Size")).on_pressed([] {
             mDoAud_seStartMenu(kSoundItemChange);
             getSettings().video.enableFullscreen.setValue(false);
             VISetWindowFullscreen(false);
@@ -698,14 +700,14 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
             rightPane, [](Pane& pane) { pane.clear(); });
         config_bool_select(leftPane, rightPane, getSettings().video.enableVsync,
             {
-                .key = "Enable VSync",
-                .helpText = "Synchronizes the frame rate to your monitor's refresh rate.",
+                .key = korean::text("Enable VSync"),
+                .helpText = korean::text("Synchronizes the frame rate to your monitor's refresh rate."),
                 .onChange = [](bool value) { aurora_enable_vsync(value); },
             });
         config_bool_select(leftPane, rightPane, getSettings().video.lockAspectRatio,
             {
-                .key = "Lock 4:3 Aspect Ratio",
-                .helpText = "Lock the game's aspect ratio to the original.",
+                .key = korean::text("Lock 4:3 Aspect Ratio"),
+                .helpText = korean::text("Lock the game's aspect ratio to the original."),
                 .onChange =
                     [](bool value) {
                         AuroraSetViewportPolicy(
@@ -714,17 +716,17 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
             });
         config_bool_select(leftPane, rightPane, getSettings().game.pauseOnFocusLost,
             {
-                .key = "Pause on Focus Lost",
-                .helpText = "Pause the game when window focus is lost.",
+                .key = korean::text("Pause on Focus Lost"),
+                .helpText = korean::text("Pause the game when window focus is lost."),
                 .isDisabled = [] { return IsMobile || speedrun::isActive(); },
             });
         leftPane.register_control(
             leftPane.add_select_button({
-                .key = "Show FPS Counter",
+                .key = korean::text("Show FPS Counter"),
                 .getValue =
                     [] {
                         if (!getSettings().video.enableFpsOverlay.getValue()) {
-                            return Rml::String{"Off"};
+                            return Rml::String{korean::text("Off")};
                         }
                         const int idx = getSettings().video.fpsOverlayCorner.getValue();
                         return Rml::String{kFpsOverlayCornerNames[idx]};
@@ -740,7 +742,7 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
             rightPane, [](Pane& pane) {
                 pane.add_button(
                         {
-                            .text = "Off",
+                            .text = korean::text("Off"),
                             .isSelected =
                                 [] { return !getSettings().video.enableFpsOverlay.getValue(); },
                         })
@@ -767,12 +769,12 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
                         });
                 }
                 pane.add_rml(
-                    "<br/>Display the current framerate in a corner of the screen while playing.");
+                    korean::text("<br/>Display the current framerate in a corner of the screen while playing."));
             });
         config_bool_select(leftPane, rightPane, getSettings().video.rememberWindowSize,
             {
-                .key = "Remember Window Size",
-                .helpText = "Save and restore the previous session's window size when opening Dusklight.",
+                .key = korean::text("Remember Window Size"),
+                .helpText = korean::text("Save and restore the previous session's window size when opening Dusklight."),
                 .onChange =
                     [](bool value) {
                         if (value && !getSettings().video.enableFullscreen) {
@@ -786,60 +788,60 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
             });
 
         config_int_select(leftPane, rightPane, getSettings().video.uiScale,
-            "UI Scale",
-            "Scales the Dusklight interface relative to the display's DPI scale. Has no effect on the game's UI and HUD.",
+            korean::text("UI Scale"),
+            korean::text("Scales the Dusklight interface relative to the display's DPI scale. Has no effect on the game's UI and HUD."),
             50, 200, 25, {}, {}, "%");
 
-        leftPane.add_section("Resolution");
+        leftPane.add_section(korean::text("Resolution"));
         graphics_tuner_control(*this, leftPane, rightPane,
             GraphicsTunerProps{
                 .option = GraphicsOption::InternalResolution,
-                .title = "Internal Resolution",
+                .title = korean::text("Internal Resolution"),
                 .helpText = kInternalResolutionHelpText,
             });
         graphics_tuner_control(*this, leftPane, rightPane,
             GraphicsTunerProps{
                 .option = GraphicsOption::ShadowResolution,
-                .title = "Shadow Resolution",
+                .title = korean::text("Shadow Resolution"),
                 .helpText = kShadowResolutionHelpText,
             });
         graphics_tuner_control(*this, leftPane, rightPane,
             GraphicsTunerProps{
                 .option = GraphicsOption::Resampler,
-                .title = "Output Resampling",
+                .title = korean::text("Output Resampling"),
                 .helpText = kResamplerHelpText,
             });
 
-        leftPane.add_section("Post-Processing");
+        leftPane.add_section(korean::text("Post-Processing"));
         graphics_tuner_control(*this, leftPane, rightPane,
             GraphicsTunerProps{
                 .option = GraphicsOption::BloomMode,
-                .title = "Bloom",
+                .title = korean::text("Bloom"),
                 .helpText = kBloomHelpText,
             });
         graphics_tuner_control(*this, leftPane, rightPane,
             GraphicsTunerProps{
                 .option = GraphicsOption::BloomMultiplier,
-                .title = "Bloom Brightness",
+                .title = korean::text("Bloom Brightness"),
                 .helpText = kBloomBrightnessHelpText,
             });
         graphics_tuner_control(*this, leftPane, rightPane,
             GraphicsTunerProps{
                 .option = GraphicsOption::DepthOfFieldMode,
-                .title = "Depth of Field",
+                .title = korean::text("Depth of Field"),
                 .helpText = kDepthOfFieldHelpText,
             });
 
-        leftPane.add_section("Rendering");
+        leftPane.add_section(korean::text("Rendering"));
         graphics_tuner_control(*this, leftPane, rightPane,
             GraphicsTunerProps{
                 .option = GraphicsOption::TextureReplacements,
-                .title = "Enable Texture Replacements",
+                .title = korean::text("Enable Texture Replacements"),
                 .helpText = kTextureReplacementHelpText,
             });
         leftPane.register_control(
             leftPane.add_select_button({
-                .key = "Unlock Framerate",
+                .key = korean::text("Unlock Framerate"),
                 .getValue =
                     [] {
                         return kInterpolationModes[static_cast<u8>(
@@ -870,24 +872,24 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
                 pane.add_rml(kUnlockFramerateHelpText);
             });
         config_int_select(leftPane, rightPane, getSettings().video.maxFrameRate,
-            "Framerate Cap", "Limit the framerate to the specified value.", 30, 540, 1,
+            korean::text("Framerate Cap"), korean::text("Limit the framerate to the specified value."), 30, 540, 1,
             [] { return getSettings().game.enableFrameInterpolation.getValue() != FrameInterpMode::Capped; },
             [](int) { presentation::update_frame_rate_preference(); });
         config_bool_select(leftPane, rightPane, getSettings().game.enableMapBackground,
             {
-                .key = "Enable Mini-Map Shadows",
-                .helpText = "Render a thick shadow around the mini-map. May impact performance."
+                .key = korean::text("Enable Mini-Map Shadows"),
+                .helpText = korean::text("Render a thick shadow around the mini-map. May impact performance.")
             });
         config_bool_select(leftPane, rightPane, getSettings().game.disableCutscenePillarboxing,
             {
-                .key = "Disable Cutscene Pillarboxing",
-                .helpText = "Disable black bars on the left and right sides of the screen "
+                .key = korean::text("Disable Cutscene Pillarboxing"),
+                .helpText = korean::text("Disable black bars on the left and right sides of the screen "
                             "during some cutscenes, particularly on ultra-wide displays. "
-                            "Visuals beyond the original intended framing may appear buggy.",
+                            "Visuals beyond the original intended framing may appear buggy."),
             });
         leftPane.register_control(
             leftPane.add_select_button({
-                .key = "Disable Letterboxing",
+                .key = korean::text("Disable Letterboxing"),
                 .getValue =
                     [] {
                         return kLetterboxModes[static_cast<u8>(getSettings().game.disableLetterboxing.getValue())];
@@ -914,8 +916,8 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
                         });
                 }
                 pane.add_rml(
-                    "<br/>Disable the top and bottom black bars during L-targeting, aiming, "
-                    "cutscenes, dialogue, etc.");
+                    korean::text("<br/>Disable the top and bottom black bars during L-targeting, aiming, "
+                    "cutscenes, dialogue, etc."));
             });
     });
 
@@ -933,40 +935,40 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
                 });
         };
 
-        leftPane.add_section("Inputs");
+        leftPane.add_section(korean::text("Inputs"));
         leftPane.register_control(
-            leftPane.add_group_button({.text = "Configure Inputs"}).on_pressed([this] {
+            leftPane.add_group_button({.text = korean::text("Configure Inputs")}).on_pressed([this] {
                 push(std::make_unique<ControllerConfigWindow>());
             }),
             rightPane, [](Pane& pane) {
                 pane.clear();
-                pane.add_text("Open input binding configuration.");
+                pane.add_text(korean::text("Open input binding configuration."));
             });
         config_bool_select(leftPane, rightPane, getSettings().game.allowBackgroundInput,
             {
-                .key = "Allow Background Inputs",
-                .helpText = "Allow inputs even when the game window is not focused.",
+                .key = korean::text("Allow Background Inputs"),
+                .helpText = korean::text("Allow inputs even when the game window is not focused."),
                 .onChange = [](bool value) { aurora_set_background_input(value); },
             });
 
 #if TOUCH_CONTROLS_AVAILABLE
-        leftPane.add_section("Touch");
-        addOption("Touch Controls", getSettings().game.enableTouchControls,
-            "Enables controls overlay for touch screens.<br/><br/>Press and drag on the left side "
-            "of the screen to move, and on the right side of the screen to control the camera.");
+        leftPane.add_section(korean::text("Touch"));
+        addOption(korean::text("Touch Controls"), getSettings().game.enableTouchControls,
+            korean::text("Enables controls overlay for touch screens.<br/><br/>Press and drag on the left side "
+            "of the screen to move, and on the right side of the screen to control the camera."));
         auto& customizeTouchLayout = leftPane.add_group_button(GroupButton::Props{
-            .text = "Customize Layout",
+            .text = korean::text("Customize Layout"),
             .isDisabled = [] { return !getSettings().game.enableTouchControls; },
         });
         leftPane.register_control(customizeTouchLayout.on_pressed(
                                       [this] { push(std::make_unique<TouchControlsEditor>()); }),
             rightPane, [](Pane& pane) {
                 pane.clear();
-                pane.add_text("Open the touch controls layout editor.");
+                pane.add_text(korean::text("Open the touch controls layout editor."));
             });
         leftPane.register_control(
             leftPane.add_select_button({
-                .key = "Touch Targeting",
+                .key = korean::text("Touch Targeting"),
                 .getValue =
                     [] {
                         return touch_targeting_label(getSettings().game.touchTargeting.getValue());
@@ -996,113 +998,113 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
                             config::save();
                         });
                 }
-                pane.add_rml(fmt::format("<br/>Hybrid: {}<br/>Hold: {}<br/>Switch: {}",
+                pane.add_rml(fmt::format(korean::text("<br/>Hybrid: {}<br/>Hold: {}<br/>Switch: {}"),
                     kTouchTargetingDescriptions[0], kTouchTargetingDescriptions[1],
                     kTouchTargetingDescriptions[2]));
             });
         config_percent_select(leftPane, rightPane, getSettings().game.touchCameraXSensitivity,
-            "Touch Camera X Sensitivity",
-            "Adjusts touch camera horizontal sensitivity.<br/><br/>Applies to touch input only.",
+            korean::text("Touch Camera X Sensitivity"),
+            korean::text("Adjusts touch camera horizontal sensitivity.<br/><br/>Applies to touch input only."),
             25, 400, 5, [] { return !getSettings().game.enableTouchControls; });
         config_percent_select(leftPane, rightPane, getSettings().game.touchCameraYSensitivity,
-            "Touch Camera Y Sensitivity",
-            "Adjusts touch camera vertical sensitivity.<br/><br/>Applies to touch input only.", 25,
+            korean::text("Touch Camera Y Sensitivity"),
+            korean::text("Adjusts touch camera vertical sensitivity.<br/><br/>Applies to touch input only."), 25,
             400, 5, [] { return !getSettings().game.enableTouchControls; });
 #endif
 
-        leftPane.add_section("Camera");
-        addOption("Free Camera", getSettings().game.freeCamera,
-            "Enables free camera control, letting you control the camera fully with the C-Stick.");
+        leftPane.add_section(korean::text("Camera"));
+        addOption(korean::text("Free Camera"), getSettings().game.freeCamera,
+            korean::text("Enables free camera control, letting you control the camera fully with the C-Stick."));
         config_percent_select(leftPane, rightPane, getSettings().game.freeCameraXSensitivity,
-            "Free Camera X Sensitivity",
-            "Adjusts horizontal free camera sensitivity.<br/><br/>Applies to the control stick only.",
+            korean::text("Free Camera X Sensitivity"),
+            korean::text("Adjusts horizontal free camera sensitivity.<br/><br/>Applies to the control stick only."),
             50, 200, 5, [] { return !getSettings().game.freeCamera; });
         config_percent_select(leftPane, rightPane, getSettings().game.freeCameraYSensitivity,
-            "Free Camera Y Sensitivity",
-            "Adjusts vertical free camera sensitivity.<br/><br/>Applies to the control stick only.",
+            korean::text("Free Camera Y Sensitivity"),
+            korean::text("Adjusts vertical free camera sensitivity.<br/><br/>Applies to the control stick only."),
             50, 200, 5, [] { return !getSettings().game.freeCamera; });
-        addOption("Invert Camera X Axis", getSettings().game.invertCameraXAxis,
-            "Invert horizontal camera movement.<br/><br/>Applies to the control stick only.");
-        addOption("Invert Camera Y Axis", getSettings().game.invertCameraYAxis,
-            "Invert vertical camera movement.<br/><br/>Applies to the control stick only.",
+        addOption(korean::text("Invert Camera X Axis"), getSettings().game.invertCameraXAxis,
+            korean::text("Invert horizontal camera movement.<br/><br/>Applies to the control stick only."));
+        addOption(korean::text("Invert Camera Y Axis"), getSettings().game.invertCameraYAxis,
+            korean::text("Invert vertical camera movement.<br/><br/>Applies to the control stick only."),
             [] { return !getSettings().game.freeCamera; });
-        addOption("Invert First Person X Axis", getSettings().game.invertFirstPersonXAxis,
-            "Invert horizontal movement while aiming with items or first person camera.<br/><br/>Applies to the control stick only.");
-        addOption("Invert First Person Y Axis", getSettings().game.invertFirstPersonYAxis,
-            "Invert vertical movement while aiming with items or first person camera.<br/><br/>Applies to the control stick only.");
+        addOption(korean::text("Invert First Person X Axis"), getSettings().game.invertFirstPersonXAxis,
+            korean::text("Invert horizontal movement while aiming with items or first person camera.<br/><br/>Applies to the control stick only."));
+        addOption(korean::text("Invert First Person Y Axis"), getSettings().game.invertFirstPersonYAxis,
+            korean::text("Invert vertical movement while aiming with items or first person camera.<br/><br/>Applies to the control stick only."));
 
-        leftPane.add_section("Gyro");
-        addOption("Gyro Aim", getSettings().game.enableGyroAim,
-            "Enables gyro controls while in look mode, aiming a hawk, and aiming "
+        leftPane.add_section(korean::text("Gyro"));
+        addOption(korean::text("Gyro Aim"), getSettings().game.enableGyroAim,
+            korean::text("Enables gyro controls while in look mode, aiming a hawk, and aiming "
             "supported items.<br/><br/>Supported items include the Slingshot, Gale Boomerang, "
-            "Hero's Bow, Clawshot(s), Ball and Chain, and Dominion Rod.");
-        addOption("Gyro Rollgoal", getSettings().game.enableGyroRollgoal,
-            "Enables gyro controls for Rollgoal in Hena's Cabin.");
+            "Hero's Bow, Clawshot(s), Ball and Chain, and Dominion Rod."));
+        addOption(korean::text("Gyro Rollgoal"), getSettings().game.enableGyroRollgoal,
+            korean::text("Enables gyro controls for Rollgoal in Hena's Cabin."));
         config_percent_select(leftPane, rightPane, getSettings().game.gyroSensitivityY,
-            "Gyro Pitch Sensitivity", "Controls vertical gyro aiming sensitivity.", 25, 400, 5,
+            korean::text("Gyro Pitch Sensitivity"), korean::text("Controls vertical gyro aiming sensitivity."), 25, 400, 5,
             [] { return !gyro_enabled(); });
         config_percent_select(leftPane, rightPane, getSettings().game.gyroSensitivityX,
-            "Gyro Yaw Sensitivity", "Controls horizontal gyro aiming sensitivity.", 25, 400, 5,
+            korean::text("Gyro Yaw Sensitivity"), korean::text("Controls horizontal gyro aiming sensitivity."), 25, 400, 5,
             [] { return !gyro_enabled(); });
         config_percent_select(leftPane, rightPane, getSettings().game.gyroSensitivityRollgoal,
-            "Rollgoal Sensitivity", "Controls how strongly gyro input tilts the Rollgoal table.",
+            korean::text("Rollgoal Sensitivity"), korean::text("Controls how strongly gyro input tilts the Rollgoal table."),
             25, 400, 5,
             [] { return !getSettings().game.enableGyroRollgoal; });
-        config_percent_select(leftPane, rightPane, getSettings().game.gyroDeadband, "Gyro Deadband",
-            "Ignores small gyro movement to reduce drift and jitter.", 0, 50, 1,
+        config_percent_select(leftPane, rightPane, getSettings().game.gyroDeadband, korean::text("Gyro Deadband"),
+            korean::text("Ignores small gyro movement to reduce drift and jitter."), 0, 50, 1,
             [] { return !gyro_enabled(); });
         config_percent_select(leftPane, rightPane, getSettings().game.gyroSmoothing,
-            "Gyro Smoothing", "Higher values smooth gyro input over time.", 0, 100, 1,
+            korean::text("Gyro Smoothing"), korean::text("Higher values smooth gyro input over time."), 0, 100, 1,
             [] { return !gyro_enabled(); });
-        addOption("Invert Gyro Pitch", getSettings().game.gyroInvertPitch,
-            "Invert vertical gyro aiming.", [] { return !gyro_enabled(); });
-        addOption("Invert Gyro Yaw", getSettings().game.gyroInvertYaw,
-            "Invert horizontal gyro aiming.", [] { return !gyro_enabled(); });
+        addOption(korean::text("Invert Gyro Pitch"), getSettings().game.gyroInvertPitch,
+            korean::text("Invert vertical gyro aiming."), [] { return !gyro_enabled(); });
+        addOption(korean::text("Invert Gyro Yaw"), getSettings().game.gyroInvertYaw,
+            korean::text("Invert horizontal gyro aiming."), [] { return !gyro_enabled(); });
 
-        leftPane.add_section("Mouse");
-        addOption("Mouse Aim", getSettings().game.enableMouseAim,
-            "Enables mouse input while in look mode, aiming a hawk, and aiming "
+        leftPane.add_section(korean::text("Mouse"));
+        addOption(korean::text("Mouse Aim"), getSettings().game.enableMouseAim,
+            korean::text("Enables mouse input while in look mode, aiming a hawk, and aiming "
             "supported items.<br/><br/>Supported items include the Slingshot, Gale Boomerang, "
-            "Hero's Bow, Clawshot(s), Ball and Chain, and Dominion Rod.");
-        addOption("Mouse Camera", getSettings().game.enableMouseCamera,
-            "Enables mouse input for controlling the third-person camera.");
+            "Hero's Bow, Clawshot(s), Ball and Chain, and Dominion Rod."));
+        addOption(korean::text("Mouse Camera"), getSettings().game.enableMouseCamera,
+            korean::text("Enables mouse input for controlling the third-person camera."));
         config_percent_select(leftPane, rightPane, getSettings().game.mouseAimSensitivity,
-            "Mouse Aim Sensitivity", "Controls mouse aim sensitivity.", 25, 400, 5,
+            korean::text("Mouse Aim Sensitivity"), korean::text("Controls mouse aim sensitivity."), 25, 400, 5,
             [] { return !getSettings().game.enableMouseAim; });
         config_percent_select(leftPane, rightPane, getSettings().game.mouseCameraSensitivity,
-            "Mouse Camera Sensitivity", "Controls mouse camera sensitivity.", 25, 400, 5,
+            korean::text("Mouse Camera Sensitivity"), korean::text("Controls mouse camera sensitivity."), 25, 400, 5,
             [] { return !getSettings().game.enableMouseCamera; });
-        addOption("Invert Mouse Y", getSettings().game.invertMouseY,
-            "Invert vertical mouse control for both aiming and camera.",
+        addOption(korean::text("Invert Mouse Y"), getSettings().game.invertMouseY,
+            korean::text("Invert vertical mouse control for both aiming and camera."),
             [] { return !getSettings().game.enableMouseAim || !getSettings().game.enableMouseCamera; });
 
-        leftPane.add_section("Gameplay");
-        addOption("Mouse/Touch in Menus", getSettings().game.enableMenuPointer,
-            "Enables mouse and touch input for supported in-game menus.");
-        addOption("Invert Air/Swim X Axis", getSettings().game.invertAirSwimX,
-            "Invert horizontal movement while flying or swimming.");
-        addOption("Invert Air/Swim Y Axis", getSettings().game.invertAirSwimY,
-            "Invert vertical movement while flying or swimming.");
-        addOption("Swap Direct Select Input", getSettings().game.swapDirectSelect,
-            "Swap the controls for using Direct Select on the item wheel, making Direct Select the default and holding L to scroll the wheel.");
+        leftPane.add_section(korean::text("Gameplay"));
+        addOption(korean::text("Mouse/Touch in Menus"), getSettings().game.enableMenuPointer,
+            korean::text("Enables mouse and touch input for supported in-game menus."));
+        addOption(korean::text("Invert Air/Swim X Axis"), getSettings().game.invertAirSwimX,
+            korean::text("Invert horizontal movement while flying or swimming."));
+        addOption(korean::text("Invert Air/Swim Y Axis"), getSettings().game.invertAirSwimY,
+            korean::text("Invert vertical movement while flying or swimming."));
+        addOption(korean::text("Swap Direct Select Input"), getSettings().game.swapDirectSelect,
+            korean::text("Swap the controls for using Direct Select on the item wheel, making Direct Select the default and holding L to scroll the wheel."));
 
-        leftPane.add_section("Tools");
-        addOption("Turbo Key", getSettings().game.enableTurboKeybind,
-            "Hold Tab to increase game speed by up to 4x.",
+        leftPane.add_section(korean::text("Tools"));
+        addOption(korean::text("Turbo Key"), getSettings().game.enableTurboKeybind,
+            korean::text("Hold Tab to increase game speed by up to 4x."),
             [] { return speedrun::isActive(); });
-        addOption("Reset Key (" + Rml::String{hotkeys::DO_RESET} + ")",
+        addOption(korean::text("Reset Key (") + Rml::String{hotkeys::DO_RESET} + ")",
             getSettings().game.enableResetKeybind,
-            "Press " + Rml::String{hotkeys::DO_RESET} + " to reset the game.");
+            korean::text("Press ") + Rml::String{hotkeys::DO_RESET} + korean::text(" to reset the game."));
     });
 
     add_tab("Audio", [this](Rml::Element* content) {
         auto& leftPane = add_child<Pane>(content, Pane::Type::Controlled);
         auto& rightPane = add_child<Pane>(content, Pane::Type::Uncontrolled);
 
-        leftPane.add_section("Output");
+        leftPane.add_section(korean::text("Output"));
         leftPane.register_control(
             leftPane.add_select_button({
-                .key = "Output Mode",
+                .key = korean::text("Output Mode"),
                 .getValue = [] {
                     const auto idx = static_cast<int>(getSettings().audio.outputMode.getValue());
                     return Rml::String{kAudioOutputModeNames[idx]};
@@ -1129,10 +1131,10 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
             });
 
         // TODO: Individual sliders for Sub Music, Sound Effects, and Fanfare.
-        leftPane.add_section("Volume");
+        leftPane.add_section(korean::text("Volume"));
         leftPane.register_control(
             leftPane.add_child<NumberButton>(NumberButton::Props{
-                .key = "Master Volume",
+                .key = korean::text("Master Volume"),
                 .getValue = [] { return getSettings().audio.masterVolume.getValue(); },
                 .setValue =
                     [](int value) {
@@ -1150,11 +1152,11 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
             }),
             rightPane, [](Pane& pane) {
                 pane.clear();
-                pane.add_text("Adjusts the volume of all sounds in the game.");
+                pane.add_text(korean::text("Adjusts the volume of all sounds in the game."));
             });
         leftPane.register_control(
             leftPane.add_child<NumberButton>(NumberButton::Props{
-                .key = "Main Music Volume",
+                .key = korean::text("Main Music Volume"),
                 .getValue = [] { return getSettings().audio.mainMusicVolume.getValue(); },
                 .setValue =
                     [](int value) {
@@ -1171,32 +1173,32 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
             }),
             rightPane, [](Pane& pane) {
                 pane.clear();
-                pane.add_text("Adjusts the volume of all music in the game.");
+                pane.add_text(korean::text("Adjusts the volume of all music in the game."));
             });
 
-        leftPane.add_section("Effects");
+        leftPane.add_section(korean::text("Effects"));
         config_bool_select(leftPane, rightPane, getSettings().audio.enableReverb,
             {
-                .key = "Enable Reverb",
-                .helpText = "Enables the reverb effect in game audio.",
+                .key = korean::text("Enable Reverb"),
+                .helpText = korean::text("Enables the reverb effect in game audio."),
                 .onChange = [](bool value) { audio::SetEnableReverb(value); },
             });
         config_bool_select(leftPane, rightPane, getSettings().audio.menuSounds,
             {
-                .key = "Dusklight Menu Sounds",
-                .helpText = "Play sound effects when navigating the Dusklight menu.",
+                .key = korean::text("Dusklight Menu Sounds"),
+                .helpText = korean::text("Play sound effects when navigating the Dusklight menu."),
             });
 
-        leftPane.add_section("Tweaks");
+        leftPane.add_section(korean::text("Tweaks"));
         config_bool_select(leftPane, rightPane, getSettings().game.noLowHpSound,
             {
-                .key = "No Low HP Sound",
-                .helpText = "Disable the beeping sound when having low health.",
+                .key = korean::text("No Low HP Sound"),
+                .helpText = korean::text("Disable the beeping sound when having low health."),
             });
         config_bool_select(leftPane, rightPane, getSettings().game.midnasLamentNonStop,
             {
-                .key = "Non-Stop Midna's Lament",
-                .helpText = "Prevents enemy music while Midna's Lament is playing.",
+                .key = korean::text("Non-Stop Midna's Lament"),
+                .helpText = korean::text("Prevents enemy music while Midna's Lament is playing."),
             });
     });
 
@@ -1217,28 +1219,28 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
             add_speedrun_disabled_option(leftPane, rightPane, value, key, helpText);
         };
 
-        leftPane.add_section("General");
-        addOption("Mirror Mode", getSettings().game.enableMirrorMode,
-            "Mirrors the world horizontally, matching the Wii version of the game.");
-        addOption("Minimal HUD", getSettings().game.minimalHUD,
-            "Disables the elements of the main HUD of the game.<br/>Useful for a more immersive "
-            "experience.");
+        leftPane.add_section(korean::text("General"));
+        addOption(korean::text("Mirror Mode"), getSettings().game.enableMirrorMode,
+            korean::text("Mirrors the world horizontally, matching the Wii version of the game."));
+        addOption(korean::text("Minimal HUD"), getSettings().game.minimalHUD,
+            korean::text("Disables the elements of the main HUD of the game.<br/>Useful for a more immersive "
+            "experience."));
         config_percent_select(leftPane, rightPane, getSettings().game.hudScale,
-            "HUD Scale",
-            "Scales the size of the gameplay HUD (hearts, buttons, mini-map, etc.). Does not affect dialog boxes or menus.",
+            korean::text("HUD Scale"),
+            korean::text("Scales the size of the gameplay HUD (hearts, buttons, mini-map, etc.). Does not affect dialog boxes or menus."),
             50, 200, 5,
             [] { return getSettings().game.minimalHUD.getValue(); });
-        addOption("Restore Wii 1.0 Glitches", getSettings().game.restoreWiiGlitches,
-            "Restores patched glitches from Wii USA 1.0, the first released version.");
-        addOption("Enable Rotating Link Doll", getSettings().game.enableLinkDollRotation,
-            "Enables rotating Link in the collection menu with the C-Stick.");
-        addOption("Hide Owl Statue Markers", getSettings().game.removeQuestMapMarkers,
-            "Removes completed Owl Statue markers from the map and Minimap.");
+        addOption(korean::text("Restore Wii 1.0 Glitches"), getSettings().game.restoreWiiGlitches,
+            korean::text("Restores patched glitches from Wii USA 1.0, the first released version."));
+        addOption(korean::text("Enable Rotating Link Doll"), getSettings().game.enableLinkDollRotation,
+            korean::text("Enables rotating Link in the collection menu with the C-Stick."));
+        addOption(korean::text("Hide Owl Statue Markers"), getSettings().game.removeQuestMapMarkers,
+            korean::text("Removes completed Owl Statue markers from the map and Minimap."));
 
-        leftPane.add_section("Difficulty");
+        leftPane.add_section(korean::text("Difficulty"));
         leftPane.register_control(
             leftPane.add_child<NumberButton>(NumberButton::Props{
-                .key = "Damage Multiplier",
+                .key = korean::text("Damage Multiplier"),
                 .getValue = [] { return getSettings().game.damageMultiplier.getValue(); },
                 .setValue =
                     [](int value) {
@@ -1257,60 +1259,58 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
             }),
             rightPane, [](Pane& pane) {
                 pane.clear();
-                pane.add_text("Multiplies incoming damage.");
+                pane.add_text(korean::text("Multiplies incoming damage."));
             });
         addSpeedrunDisabledOption(
-            "Instant Death", getSettings().game.instantDeath, "Any hit will instantly kill you.");
-        addSpeedrunDisabledOption("No Heart Drops", getSettings().game.noHeartDrops,
-            "Hearts will never drop from enemies, pots, and various other places.");
+            korean::text("Instant Death"), getSettings().game.instantDeath, korean::text("Any hit will instantly kill you."));
+        addSpeedrunDisabledOption(korean::text("No Heart Drops"), getSettings().game.noHeartDrops,
+            korean::text("Hearts will never drop from enemies, pots, and various other places."));
 
-        leftPane.add_section("Quality of Life");
-        addOption("Bigger Wallets", getSettings().game.biggerWallets,
-            "Wallet sizes are like in the HD version. (500, 1000, 2000)");
-        addOption("Disable Rupee Cutscenes", getSettings().game.disableRupeeCutscenes,
-            "Rupees will not play cutscenes after you have collected them the first time.");
-        addSpeedrunDisabledOption("Faster Scene Transitions", getSettings().game.fastTransitions,
-            "Reduces how long the transitions take when changing maps.");
-        addOption("Faster Climbing", getSettings().game.fastClimbing,
-            "Quicker climbing on ladders and vines like the HD version.");
-        addOption("Faster Tears of Light", getSettings().game.fastTears,
-            "Tears of Light dropped by Shadow Insects pop out faster like the HD version.");
-        addSpeedrunDisabledOption("Autosave", getSettings().game.autoSave,
-            "Autosaves the game when going to a new area or opening a dungeon door.");
-        addOption("Instant Saves", getSettings().game.instantSaves,
-            "Skips the delay when writing to the Memory Card.");
-        addOption("Hold B for Instant Text", getSettings().game.instantText,
-            "Makes text scroll immediately by holding B.");
-        addSpeedrunDisabledOption("Hold Button to Mash", getSettings().game.holdToMash,
-            "Hold the indicated button to mash automatically.");
-        addOption("No Climbing Miss Animation", getSettings().game.noMissClimbing,
-            "Prevents Link from playing a struggle animation when grabbing ledges or "
-            "climbing on vines.");
-        addOption("No Rupee Returns", getSettings().game.noReturnRupees,
-            "Always collect Rupees even if your Wallet is too full.");
-        addOption("No Sword Recoil", getSettings().game.noSwordRecoil,
-            "Link will not recoil when his sword hits walls.");
-        addOption("No 2nd Fish for Cat", getSettings().game.no2ndFishForCat,
-            "Skip needing to catch a second fish for Sera's cat.");
-        addOption("Button Fishing", getSettings().game.buttonFishing,
-            "Allow fishing with the Fishing Rod using the button the item is assigned to.");
-        addOption("Show Poe Count on Map", getSettings().game.enhancedMapMenus,
-            "Displays collected/total number of Poe Souls for a region on the map.");
-        addSpeedrunDisabledOption("Sun's Song (R+X)", getSettings().game.sunsSong,
-            "Allows Wolf Link to howl and change the time of day.");
-        addOption("Quick Transform (R+Y)", getSettings().game.enableQuickTransform,
-            "Transform instantly by pressing R and Y simultaneously.");
-        addOption("Aiming Reticle", getSettings().game.aimingReticle,
-            "Shows the aiming reticle for bow and slingshot.");
-        addOption("No Hit Stun", getSettings().game.noHitStun,
-            "Disables hit stun frames after attacks.");
+        leftPane.add_section(korean::text("Quality of Life"));
+        addOption(korean::text("Bigger Wallets"), getSettings().game.biggerWallets,
+            korean::text("Wallet sizes are like in the HD version. (500, 1000, 2000)"));
+        addOption(korean::text("Disable Rupee Cutscenes"), getSettings().game.disableRupeeCutscenes,
+            korean::text("Rupees will not play cutscenes after you have collected them the first time."));
+        addSpeedrunDisabledOption(korean::text("Faster Scene Transitions"), getSettings().game.fastTransitions,
+            korean::text("Reduces how long the transitions take when changing maps."));
+        addOption(korean::text("Faster Climbing"), getSettings().game.fastClimbing,
+            korean::text("Quicker climbing on ladders and vines like the HD version."));
+        addOption(korean::text("Faster Tears of Light"), getSettings().game.fastTears,
+            korean::text("Tears of Light dropped by Shadow Insects pop out faster like the HD version."));
+        addSpeedrunDisabledOption(korean::text("Autosave"), getSettings().game.autoSave,
+            korean::text("Autosaves the game when going to a new area or opening a dungeon door."));
+        addOption(korean::text("Instant Saves"), getSettings().game.instantSaves,
+            korean::text("Skips the delay when writing to the Memory Card."));
+        addOption(korean::text("Hold B for Instant Text"), getSettings().game.instantText,
+            korean::text("Makes text scroll immediately by holding B."));
+        addSpeedrunDisabledOption(korean::text("Hold Button to Mash"), getSettings().game.holdToMash,
+            korean::text("Hold the indicated button to mash automatically."));
+        addOption(korean::text("No Climbing Miss Animation"), getSettings().game.noMissClimbing,
+            korean::text("Prevents Link from playing a struggle animation when grabbing ledges or "
+            "climbing on vines."));
+        addOption(korean::text("No Rupee Returns"), getSettings().game.noReturnRupees,
+            korean::text("Always collect Rupees even if your Wallet is too full."));
+        addOption(korean::text("No Sword Recoil"), getSettings().game.noSwordRecoil,
+            korean::text("Link will not recoil when his sword hits walls."));
+        addOption(korean::text("No 2nd Fish for Cat"), getSettings().game.no2ndFishForCat,
+            korean::text("Skip needing to catch a second fish for Sera's cat."));
+        addOption(korean::text("Button Fishing"), getSettings().game.buttonFishing,
+            korean::text("Allow fishing with the Fishing Rod using the button the item is assigned to."));
+        addOption(korean::text("Show Poe Count on Map"), getSettings().game.enhancedMapMenus,
+            korean::text("Displays collected/total number of Poe Souls for a region on the map."));
+        addSpeedrunDisabledOption(korean::text("Sun's Song (R+X)"), getSettings().game.sunsSong,
+            korean::text("Allows Wolf Link to howl and change the time of day."));
+        addOption(korean::text("Quick Transform (R+Y)"), getSettings().game.enableQuickTransform,
+            korean::text("Transform instantly by pressing R and Y simultaneously."));
+        addOption(korean::text("Aiming Reticle"), getSettings().game.aimingReticle,
+            korean::text("Shows the aiming reticle for bow and slingshot."));
 
-        leftPane.add_section("Speedrunning");
+        leftPane.add_section(korean::text("Speedrunning"));
         config_bool_select(leftPane, rightPane, getSettings().game.speedrunMode,
             {
-                .key = "Speedrun Mode",
+                .key = korean::text("Speedrun Mode"),
                 .helpText =
-                    "Enables Speedrun game mode option in the Dusklight launch menu.",
+                    korean::text("Enables Speedrun game mode option in the Dusklight launch menu."),
                 .onChange =
                     [this](bool enabled) {
                         if (enabled) {
@@ -1326,9 +1326,9 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
             });
         config_bool_select(leftPane, rightPane, getSettings().game.liveSplitEnabled,
             {
-                .key = "LiveSplit Connection",
-                .helpText = "Connect to LiveSplit server on localhost:16834. For this to work you must right click LiveSplit, and turn on Control -> Start TCP Server."
-                " To see IGT in LiveSplit you must change your comparison to Game Time.",
+                .key = korean::text("LiveSplit Connection"),
+                .helpText = korean::text("Connect to LiveSplit server on localhost:16834. For this to work you must right click LiveSplit, and turn on Control -> Start TCP Server."
+                " To see IGT in LiveSplit you must change your comparison to Game Time."),
                 .onChange =
                     [](bool enabled) {
                         if (enabled) {
@@ -1341,8 +1341,8 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
             });
         config_bool_select(leftPane, rightPane, getSettings().game.showSpeedrunRTATimer,
             {
-                .key = "Show RTA",
-                .helpText = "Display the RTA timer. IGT is always visible.",
+                .key = korean::text("Show RTA"),
+                .helpText = korean::text("Display the RTA timer. IGT is always visible."),
                 .isDisabled = [] { return !speedrun::isActive(); },
             });
     });
@@ -1356,32 +1356,32 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
             add_speedrun_disabled_option(leftPane, rightPane, value, key, helpText);
         };
 
-        leftPane.add_section("Resources");
-        addCheat("Infinite Hearts", getSettings().game.infiniteHearts, "Keeps your health full.");
+        leftPane.add_section(korean::text("Resources"));
+        addCheat(korean::text("Infinite Hearts"), getSettings().game.infiniteHearts, korean::text("Keeps your health full."));
         addCheat(
-            "Infinite Arrows", getSettings().game.infiniteArrows, "Keeps your arrow count full.");
-        addCheat("Infinite Seeds", getSettings().game.infiniteSeeds, "Keeps your slingshot pellets (seeds) full.");
-        addCheat("Infinite Bombs", getSettings().game.infiniteBombs, "Keeps all bomb bags full.");
-        addCheat("Infinite Oil", getSettings().game.infiniteOil, "Keeps your lantern oil full.");
-        addCheat("Infinite Oxygen", getSettings().game.infiniteOxygen,
-            "Keeps your underwater oxygen meter full.");
+            korean::text("Infinite Arrows"), getSettings().game.infiniteArrows, korean::text("Keeps your arrow count full."));
+        addCheat(korean::text("Infinite Seeds"), getSettings().game.infiniteSeeds, korean::text("Keeps your slingshot pellets (seeds) full."));
+        addCheat(korean::text("Infinite Bombs"), getSettings().game.infiniteBombs, korean::text("Keeps all bomb bags full."));
+        addCheat(korean::text("Infinite Oil"), getSettings().game.infiniteOil, korean::text("Keeps your lantern oil full."));
+        addCheat(korean::text("Infinite Oxygen"), getSettings().game.infiniteOxygen,
+            korean::text("Keeps your underwater oxygen meter full."));
         addCheat(
-            "Infinite Rupees", getSettings().game.infiniteRupees, "Keeps your rupee count full.");
-        addCheat("No Item Timer", getSettings().game.enableIndefiniteItemDrops,
-            "Item drops such as rupees and hearts will never disappear after they drop.");
+            korean::text("Infinite Rupees"), getSettings().game.infiniteRupees, korean::text("Keeps your rupee count full."));
+        addCheat(korean::text("No Item Timer"), getSettings().game.enableIndefiniteItemDrops,
+            korean::text("Item drops such as rupees and hearts will never disappear after they drop."));
 
-        leftPane.add_section("Abilities");
+        leftPane.add_section(korean::text("Abilities"));
 
         addCheat(
-            "Moon Jump (R+A)", getSettings().game.moonJump, "Hold R and A to rise into the air.");
+            korean::text("Moon Jump (R+A)"), getSettings().game.moonJump, korean::text("Hold R and A to rise into the air."));
         addCheat(
-            "Easy Quick Spin (R+B)", getSettings().game.easyQuickSpin, "Hold R to always do a Quick Spin when attacking with B.");
+            korean::text("Easy Quick Spin (R+B)"), getSettings().game.easyQuickSpin, korean::text("Hold R to always do a Quick Spin when attacking with B."));
 
-        addCheat("Super Clawshot", getSettings().game.superClawshot,
-            "Extends Clawshot behavior beyond the normal game rules.");
+        addCheat(korean::text("Super Clawshot"), getSettings().game.superClawshot,
+            korean::text("Extends Clawshot behavior beyond the normal game rules."));
         leftPane.register_control(
             leftPane.add_select_button({
-                .key = "Always Greatspin",
+                .key = korean::text("Always Greatspin"),
                 .getValue =
                     [] {
                         return kAlwaysGreatspinModes[static_cast<u8>(
@@ -1411,19 +1411,19 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
                             config::save();
                         });
                 }
-                pane.add_rml("<br/>Allows the Great Spin attack without requiring full health.");
+                pane.add_rml(korean::text("<br/>Allows the Great Spin attack without requiring full health."));
             });
-        addCheat("Fast Iron Boots", getSettings().game.enableFastIronBoots,
-            "Speeds up movement while heavy, including wearing the Iron Boots, holding the Ball and Chain, wearing Magic Armor without rupees, etc.");
-        addCheat("Can Transform Anywhere", getSettings().game.canTransformAnywhere,
-            "Allows transforming even if NPCs are looking.");
-        addCheat("Fast Roll", getSettings().game.fastRoll,
-            "Makes Link's roll animation and movement twice as fast.");
-        addCheat("Fast Spinner", getSettings().game.fastSpinner,
-            "Speeds up Spinner movement while holding R.");
+        addCheat(korean::text("Fast Iron Boots"), getSettings().game.enableFastIronBoots,
+            korean::text("Speeds up movement while heavy, including wearing the Iron Boots, holding the Ball and Chain, wearing Magic Armor without rupees, etc."));
+        addCheat(korean::text("Can Transform Anywhere"), getSettings().game.canTransformAnywhere,
+            korean::text("Allows transforming even if NPCs are looking."));
+        addCheat(korean::text("Fast Roll"), getSettings().game.fastRoll,
+            korean::text("Makes Link's roll animation and movement twice as fast."));
+        addCheat(korean::text("Fast Spinner"), getSettings().game.fastSpinner,
+            korean::text("Speeds up Spinner movement while holding R."));
         leftPane.register_control(
             leftPane.add_select_button({
-                .key = "Magic Armor Behavior",
+                .key = korean::text("Magic Armor Behavior"),
                 .getValue =
                     [] {
                         return kMagicArmorModes[static_cast<u8>(
@@ -1452,12 +1452,10 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
                         });
                 }
                 pane.add_rml(
-                    "<br/>Control the behavior of the Magic Armor.");
+                    korean::text("<br/>Control the behavior of the Magic Armor."));
             });
-        addCheat("Invincible Enemies", getSettings().game.invincibleEnemies,
-            "Prevents enemies from taking damage.");
-        addCheat("Infinite Epona Stamina", getSettings().game.infiniteEponaStamina,
-            "Prevents Epona's stamina from depleting.");
+        addCheat(korean::text("Invincible Enemies"), getSettings().game.invincibleEnemies,
+            korean::text("Prevents enemies from taking damage."));
     });
 
     add_tab("Interface", [this](Rml::Element* content) {
@@ -1467,39 +1465,39 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
         leftPane.add_section("Dusklight");
 #if DUSK_CAN_OPEN_DATA_FOLDER
         leftPane.register_control(
-            leftPane.add_button("Open Data Folder").on_pressed([] {
+            leftPane.add_button(korean::text("Open Data Folder")).on_pressed([] {
                 mDoAud_seStartMenu(kSoundClick);
                 data::open_data_path();
             }),
             rightPane, [](Pane& pane) {
                 pane.add_text(
-                    "Open the folder where Dusklight stores settings, saves, logs, texture "
-                    "replacements, and other app data.");
+                    korean::text("Open the folder where Dusklight stores settings, saves, logs, texture "
+                    "replacements, and other app data."));
             });
 #endif
-        leftPane.register_control(leftPane.add_button("Restart to Main Menu").on_pressed([this] {
+        leftPane.register_control(leftPane.add_button(korean::text("Restart to Main Menu")).on_pressed([this] {
             mDoAud_seStartMenu(kSoundClick);
             pop();
             prelaunch_state().returnToPrelaunchOnReset = true;
             JUTGamePad::C3ButtonReset::sResetSwitchPushing = true;
         }),
             rightPane, [](Pane& pane) {
-                pane.add_text("Restart Dusklight to the pre-launch menu to change settings, game "
-                              "modes, or mods.");
+                pane.add_text(korean::text("Restart Dusklight to the pre-launch menu to change settings, game "
+                              "modes, or mods."));
             });
         leftPane.register_control(
             leftPane.add_select_button({
-                .key = "Notifications",
+                .key = korean::text("Notifications"),
                 .getValue = [] {
                     const bool ach = getSettings().game.enableAchievementToasts.getValue();
                     const bool ctl = getSettings().game.enableControllerToasts.getValue();
                     if (!ach && !ctl) {
-                        return Rml::String{"Off"};
+                        return Rml::String{korean::text("Off")};
                     }
                     if (ach && ctl) {
-                        return Rml::String{"All"};
+                        return Rml::String{korean::text("All")};
                     }
-                    return Rml::String{"Some"};
+                    return Rml::String{korean::text("Some")};
                 },
                 .isModified = [] {
                     const auto& ach = getSettings().game.enableAchievementToasts;
@@ -1509,23 +1507,23 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
             }),
             rightPane, [](Pane& pane) {
                 pane.clear();
-                pane.add_button("Select All").on_pressed([] {
+                pane.add_button(korean::text("Select All")).on_pressed([] {
                     mDoAud_seStartMenu(kSoundItemChange);
                     getSettings().game.enableAchievementToasts.setValue(true);
                     getSettings().game.enableControllerToasts.setValue(true);
                     config::save();
                 });
-                pane.add_button("Select None").on_pressed([] {
+                pane.add_button(korean::text("Select None")).on_pressed([] {
                     mDoAud_seStartMenu(kSoundItemChange);
                     getSettings().game.enableAchievementToasts.setValue(false);
                     getSettings().game.enableControllerToasts.setValue(false);
                     config::save();
                 });
 
-                pane.add_section("Types");
+                pane.add_section(korean::text("Types"));
                 pane.add_button(
                     {
-                        .text = "Achievements",
+                        .text = korean::text("Achievements"),
                         .isSelected =
                         [] {
                             return getSettings().game.enableAchievementToasts.getValue();
@@ -1539,7 +1537,7 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
                     });
                 pane.add_button(
                     {
-                        .text = "Missing Device",
+                        .text = korean::text("Missing Device"),
                         .isSelected =
                             [] { return getSettings().game.enableControllerToasts.getValue(); },
                     })
@@ -1549,11 +1547,11 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
                         v.setValue(!v.getValue());
                         config::save();
                     });
-                pane.add_rml("<br/>Choose which notifications can be displayed.");
+                pane.add_rml(korean::text("<br/>Choose which notifications can be displayed."));
             });
 #if BOREALIS_HAS_SENTRY
-        auto& crashReporting = leftPane.add_child<BoolButton>(BoolButton::Props{
-            .key = "Crash Reporting",
+        auto& crashReporting = leftPane.add_child<KoreanBoolButton>(BoolButton::Props{
+            .key = korean::text("Crash Reporting"),
             .getValue =
                 [] { return borealis::sentry::get_consent() == borealis::sentry::Consent::Given; },
             .setValue = [](bool enabled) { borealis::sentry::set_consent(enabled); },
@@ -1566,36 +1564,36 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
         });
         leftPane.register_control(crashReporting, rightPane, [](Pane& pane) {
             pane.clear();
-            pane.add_rml("Dusklight can automatically send crash reports to the developers. Crash "
+            pane.add_rml(korean::text("Dusklight can automatically send crash reports to the developers. Crash "
                          "reports contain the following:<br/>• Operating system version<br/>• CPU "
                          "architecture<br/>• GPU model & driver version<br/>• File paths (may "
-                         "include account username)<br/>• Stack trace");
+                         "include account username)<br/>• Stack trace"));
         });
 #endif
         config_bool_select(leftPane, rightPane, getSettings().backend.skipPreLaunchUI,
             {
-                .key = "Skip Dusklight Main Menu",
+                .key = korean::text("Skip Dusklight Main Menu"),
                 .helpText =
-                    "When starting Dusklight, skip the main menu and boot straight into the "
+                    korean::text("When starting Dusklight, skip the main menu and boot straight into the "
                     "game if a disc image is available.<br/><br/>Note: If any mods register game "
-                    "modes, this option will be ignored.",
+                    "modes, this option will be ignored."),
             });
         config_bool_select(leftPane, rightPane, getSettings().backend.showPipelineCompilation,
             {
-                .key = "Show Shader Compilation",
-                .helpText = "Show an overlay when shaders are being compiled for your hardware.",
+                .key = korean::text("Show Shader Compilation"),
+                .helpText = korean::text("Show an overlay when shaders are being compiled for your hardware."),
             });
         config_bool_select(leftPane, rightPane, getSettings().backend.checkForUpdates,
             {
-                .key = "Check for Dusklight Updates",
-                .helpText = "Checks GitHub releases for a new Dusklight version on startup.<br/><br/>"
-                            "No personal information is transmitted or collected.",
+                .key = korean::text("Check for Dusklight Updates"),
+                .helpText = korean::text("Checks GitHub releases for a new Dusklight version on startup.<br/><br/>"
+                            "No personal information is transmitted or collected."),
             });
 #if BOREALIS_HAS_DISCORD
         config_bool_select(leftPane, rightPane, getSettings().game.enableDiscordPresence,
             {
-                .key = "Enable Discord Rich Presence",
-                .helpText = "Enable Dusklight to integrate with Discord Rich Presence. This allows Discord to show your status in-game.",
+                .key = korean::text("Enable Discord Rich Presence"),
+                .helpText = korean::text("Enable Dusklight to integrate with Discord Rich Presence. This allows Discord to show your status in-game."),
                 .onChange = [](bool enabled) {
                     if (enabled) {
                         discord::initialize();
@@ -1607,29 +1605,29 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
 #endif
         config_bool_select(leftPane, rightPane, getSettings().backend.enableAdvancedSettings,
             {
-                .key = "Enable Advanced Settings",
+                .key = korean::text("Enable Advanced Settings"),
                 .icon = "warning",
-                .helpText = "Show advanced settings and debugging tools with "
+                .helpText = korean::text("Show advanced settings and debugging tools with "
                             "Shift+F1.<br/><br/><icon class=\"warning\"/> WARNING: Debugging tools "
-                            "can easily break your game. Do not use on a regular save!",
+                            "can easily break your game. Do not use on a regular save!"),
                 .onChange = [](bool) { MenuBar::refresh_tabs(); },
                 .isDisabled = [] { return speedrun::isActive(); },
             });
         config_bool_select(leftPane, rightPane, getSettings().game.showInputViewer,
             {
-                .key = "Show Input Viewer",
-                .helpText = "Display a controller input overlay while playing.",
+                .key = korean::text("Show Input Viewer"),
+                .helpText = korean::text("Display a controller input overlay while playing."),
             });
         config_bool_select(leftPane, rightPane, getSettings().game.showInputViewerGyro,
             {
-                .key = "Show Gyro Input Viewer",
-                .helpText = "Show gyro sensor values in the input viewer.",
+                .key = korean::text("Show Gyro Input Viewer"),
+                .helpText = korean::text("Show gyro sensor values in the input viewer."),
                 .isDisabled = [] { return !getSettings().game.showInputViewer; },
             });
-        leftPane.add_section("Game");
+        leftPane.add_section(korean::text("Game"));
         leftPane.register_control(
             leftPane.add_select_button({
-                .key = "Menu Scaling Mode",
+                .key = korean::text("Menu Scaling Mode"),
                 .getValue =
                     [] {
                         return kMenuScalingModeLabels[static_cast<u8>(
@@ -1659,32 +1657,41 @@ SettingsWindow::SettingsWindow(bool prelaunch) : mPrelaunch(prelaunch) {
                             config::save();
                         });
                 }
-                pane.add_rml("<br/>Changes how the Collection and File Select menus scale to your "
-                             "aspect ratio.");
+                pane.add_rml(korean::text("<br/>Changes how the Collection and File Select menus scale to your "
+                             "aspect ratio."));
             });
         config_bool_select(leftPane, rightPane, getSettings().game.hideTvSettingsScreen,
             {
-                .key = "Skip TV Settings Screen",
-                .helpText = "Skips the TV calibration screen shown when loading a save.",
+                .key = korean::text("Skip TV Settings Screen"),
+                .helpText = korean::text("Skips the TV calibration screen shown when loading a save."),
             });
         add_speedrun_disabled_option(leftPane, rightPane, getSettings().game.recordingMode,
-            "Recording Mode",
-            "Disables the game HUD and all background music.<br/><br/>Useful for recording footage.");
+            korean::text("Recording Mode"),
+            korean::text("Disables the game HUD and all background music.<br/><br/>Useful for recording footage."));
     });
 
     add_tab("Tools", [this](Rml::Element* content) {
         auto& leftPane = add_child<Pane>(content, Pane::Type::Controlled);
         auto& rightPane = add_child<Pane>(content, Pane::Type::Uncontrolled);
 
-        leftPane.add_section("Link");
+        leftPane.add_section(korean::text("Link"));
         add_speedrun_disabled_option(leftPane, rightPane, getSettings().game.enableMoveLinkCombo,
-            "Move Link (L+R+Y)",
-            "Enables the L+R+Y button combo to toggle freely repositioning Link.");
+            korean::text("Move Link (L+R+Y)"),
+            korean::text("Enables the L+R+Y button combo to toggle freely repositioning Link."));
         add_speedrun_disabled_option(leftPane, rightPane, getSettings().game.enableTeleportCombo,
-            "Teleport (R+D-pad Up/Down)",
-            "R+D-pad Up stores Link's current position.<br/>"
-            "R+D-pad Down teleports Link back to it.");
+            korean::text("Teleport (R+D-pad Up/Down)"),
+            korean::text("R+D-pad Up stores Link's current position.<br/>"
+            "R+D-pad Down teleports Link back to it."));
     });
+    // Korean display labels; the original tab identifiers remain unchanged.
+    mTabBar->set_tab_label("Prelaunch", korean::text("Prelaunch"));
+    mTabBar->set_tab_label("Video", korean::text("Video"));
+    mTabBar->set_tab_label("Input", korean::text("Input"));
+    mTabBar->set_tab_label("Audio", korean::text("Audio"));
+    mTabBar->set_tab_label("Gameplay", korean::text("Gameplay"));
+    mTabBar->set_tab_label("Cheats", korean::text("Cheats"));
+    mTabBar->set_tab_label("Interface", korean::text("Interface"));
+    mTabBar->set_tab_label("Tools", korean::text("Tools"));
 }
 
 void SettingsWindow::update() {

@@ -27,6 +27,8 @@ public:
     bool focus() override;
 
     Button& add_tab(const Rml::String& title, TabCallback callback);
+    // Change only the visible label; title remains the canonical navigation key.
+    bool set_tab_label(const Rml::String& canonical_title, const Rml::String& display_text);
     void clear_tabs();
     bool set_active_tab(int index);
     void refresh_active_tab();

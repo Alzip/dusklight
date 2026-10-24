@@ -1,4 +1,5 @@
 #include "menu_bar.hpp"
+#include "korean.hpp"
 
 #include "achievements.hpp"
 #include "editor.hpp"
@@ -71,20 +72,25 @@ MenuBar::MenuBar()
 }
 
 void MenuBar::build_tabs() {
-    mTabBar->add_tab("Settings", [this] { push(std::make_unique<SettingsWindow>()); });
+    mTabBar->add_tab("Settings", [this] { push(std::make_unique<SettingsWindow>()); })
+        .set_text(korean::text("Settings"));
 
     if (getSettings().backend.enableAdvancedSettings) {
-        mTabBar->add_tab("Warp", [this] { push(std::make_unique<WarpWindow>()); });
-        mTabBar->add_tab("Editor", [this] { push(std::make_unique<EditorWindow>()); });
+        mTabBar->add_tab("Warp", [this] { push(std::make_unique<WarpWindow>()); })
+            .set_text(korean::text("Warp"));
+        mTabBar->add_tab("Editor", [this] { push(std::make_unique<EditorWindow>()); })
+            .set_text(korean::text("Editor"));
     }
 
     // Only allow us to access achievements if we are playing on a game mode that uses them
     if (gamemode::getGameModeManager().isCurrentGameMode(gamemode::kVanillaGameModeId) ||
         gamemode::getGameModeManager().isCurrentGameMode(speedrun::kSpeedrunGameModeId))
     {
-        mTabBar->add_tab("Achievements", [this] { push(std::make_unique<AchievementsWindow>()); });
+        mTabBar->add_tab("Achievements", [this] { push(std::make_unique<AchievementsWindow>()); })
+            .set_text(korean::text("Achievements"));
     }
     mModsButton = &mTabBar->add_tab("Mods", [this] { push(std::make_unique<ModsWindow>()); });
+    mModsButton->set_text(korean::text("Mods"));
     for (auto& tab : mods::svc::ui_mod_menu_tabs()) {
         mTabBar->add_tab(tab.label, std::move(tab.onSelected));
     }
@@ -93,13 +99,13 @@ void MenuBar::build_tabs() {
         mTabBar->set_active_tab(-1);
         const auto dismiss = [](Modal& modal) { modal.pop(); };
         push(std::make_unique<Modal>(Modal::Props{
-            .title = "Reset Game",
-            .bodyRml = "Unsaved progress will be lost.<br/>"
-                       "<modal-tip>Tip: You can also reset by holding Start+X+B</modal-tip>",
+            .title = korean::text("Reset Game"),
+            .bodyRml = korean::text("Unsaved progress will be lost.<br/>"
+                       "<modal-tip>Tip: You can also reset by holding Start+X+B</modal-tip>"),
             .actions =
                 {
                     ModalAction{
-                        .label = "Cancel",
+                        .label = korean::text("Cancel"),
                         .onPressed =
                             [this, dismiss](Modal& modal) {
                                 mDoAud_seStartMenu(kSoundWindowClose);
@@ -107,7 +113,7 @@ void MenuBar::build_tabs() {
                             },
                     },
                     ModalAction{
-                        .label = "Reset",
+                        .label = korean::text("Reset"),
                         .onPressed =
                             [this, dismiss](Modal& modal) {
                                 mDoAud_seStartMenu(kSoundClick);
@@ -129,17 +135,17 @@ void MenuBar::build_tabs() {
             .onDismiss = dismiss,
             .icon = "question-mark",
         }));
-    });
+    }).set_text(korean::text("Reset"));
     mTabBar->add_tab("Quit", [this] {
         mTabBar->set_active_tab(-1);
         const auto dismiss = [](Modal& modal) { modal.pop(); };
         push(std::make_unique<Modal>(Modal::Props{
-            .title = "Quit Dusklight",
-            .bodyText = "Unsaved progress will be lost.",
+            .title = korean::text("Quit Dusklight"),
+            .bodyText = korean::text("Unsaved progress will be lost."),
             .actions =
                 {
                     ModalAction{
-                        .label = "Cancel",
+                        .label = korean::text("Cancel"),
                         .onPressed =
                             [dismiss](Modal& modal) {
                                 mDoAud_seStartMenu(kSoundWindowClose);
@@ -147,7 +153,7 @@ void MenuBar::build_tabs() {
                             },
                     },
                     ModalAction{
-                        .label = "Quit",
+                        .label = korean::text("Quit"),
                         .onPressed =
                             [dismiss](Modal& modal) {
                                 mDoAud_seStartMenu(kSoundClick);
@@ -159,7 +165,7 @@ void MenuBar::build_tabs() {
             .onDismiss = dismiss,
             .icon = "question-mark",
         }));
-    });
+    }).set_text(korean::text("Quit"));
 
     if (speedrun::isActive()) {
         mTabBar->add_tab("Reset Run", [this] {
@@ -169,7 +175,7 @@ void MenuBar::build_tabs() {
             speedrun::reset();
             JUTGamePad::C3ButtonReset::sResetSwitchPushing = true;
             hide(false);
-        });
+        }).set_text(korean::text("Reset Run"));
     }
 }
 

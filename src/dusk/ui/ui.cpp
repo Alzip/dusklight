@@ -111,6 +111,8 @@ bool initialize() noexcept {
     load_font("AlegreyaSC-Bold.ttf");
     load_font("MaterialSymbolsRounded-Regular.ttf");
     load_font("NotoMono-Regular.ttf");
+    // Bundled fallback supplies Hangul; existing Latin and icon fonts stay primary.
+    load_font("NanumGothic-Regular.ttf", true);
 
     register_icon_texture_provider();
     register_mod_texture_provider();
