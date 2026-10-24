@@ -1,0 +1,83 @@
+name: Korean UI - Windows x64
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - korean-ui-2.0.3
+    paths:
+      - 'src/dusk/ui/**'
+      - 'res/localization/**'
+      - 'res/NanumGothic-Regular.ttf'
+      - 'tools/korean/**'
+      - 'tests/korean_*'
+      - '.github/workflows/korean-windows.yml'
+      - 'KOREAN_UI.md'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: korean-windows-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SCCACHE_GHA_ENABLED: 'true'
+  RUSTC_WRAPPER: sccache
+
+jobs:
+  build-windows:
+    name: Build Korean UI on the original 2.0.3 runtime
+    runs-on: windows-2025-vs2026
+    timeout-minutes: 75
+    steps:
+      - name: Check out the translated source and exact upstream submodules
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+          submodules: recursive
+          persist-credentials: false
+
+      - name: Use the official release's compiler and Windows SDK family
+        uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1
+        with:
+          arch: amd64
+          toolset: '14.51'
+          sdk: '10.0.26100.0'
+
+      - name: Enable the original compiler cache version
+        uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad # v0.0.9
+        with:
+          version: v0.18.0
+
+      - name: Build, verify compatibility and package only the UI changes
+        shell: pwsh
+        run: ./tools/korean/build_windows.ps1
+
+      - name: Record the exact package and preservation checks
+        shell: pwsh
+        run: |
+          $Info = Get-Content build/korean-deliverables/BUILD_INFO.json -Raw | ConvertFrom-Json
+          $Checks = Get-Content build/korean-deliverables/VERIFICATION.json -Raw | ConvertFrom-Json
+          @"
+          ## Dusklight 2.0.3 Korean UI (Windows x64)
+          - Translated source: ``$($Info.source.source_revision)``
+          - Original source: ``$($Info.source.baseline_revision)``
+          - Package: ``$($Info.package)``
+          - SHA-256: ``$($Info.sha256)``
+          - All $($Checks.host.preserved_original_named_exports) original named host exports preserved.
+          - Original DLLs, bundled mods, cache and existing resources have identical hashes.
+          - Import resolution, Windows version metadata and generated symbol sections passed.
+          - Source scope, localization generation and C++ fmt checks passed.
+          - Actual game/menu rendering still needs in-game confirmation.
+          "@ | Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY
+
+      - name: Upload the complete ready-to-run Windows package
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: Dusklight-2.0.3-Korean-windows-x64
+          path: build/korean-deliverables/
+          if-no-files-found: error
+          retention-days: 30
