@@ -151,6 +151,38 @@ class DictionaryTests(unittest.TestCase):
                 source.write_bytes(dictionary({"Save": "저장하기"}))
                 self.assertEqual(generator.main(args + ["--check"]), 1)
 
+    def test_generation_normalizes_checkout_newlines_only(self) -> None:
+        strings = {"Save": "저장\r\n계속"}
+        source = (json.dumps({"version": 1, "language": "ko", "strings": strings},
+                             ensure_ascii=False, indent=2) + "\n").encode("utf-8")
+        crlf_source = source.replace(b"\n", b"\r\n")
+        self.assertNotEqual(source, crlf_source)
+        self.assertEqual(generator.generate(source), generator.generate(crlf_source))
+        self.assertEqual(generator.load_dictionary(crlf_source), strings)
+        self.assertIn("\\r\\n", generator.generate(crlf_source))
+
+    def test_cli_check_accepts_crlf_but_rejects_changed_content(self) -> None:
+        source_bytes = (json.dumps({"version": 1, "language": "ko", "strings": {"Save": "저장"}},
+                                   ensure_ascii=False, indent=2) + "\n").encode("utf-8")
+        generated = generator.generate(source_bytes).encode("ascii")
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "ko.json"
+            output = Path(directory) / "table.inc"
+            args = ["--input", str(source), "--output", str(output), "--check"]
+            with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+                for source_newline in (b"\n", b"\r\n"):
+                    for output_newline in (b"\n", b"\r\n"):
+                        with self.subTest(source_newline=source_newline, output_newline=output_newline):
+                            source.write_bytes(source_bytes.replace(b"\n", source_newline))
+                            output.write_bytes(generated.replace(b"\n", output_newline))
+                            self.assertEqual(generator.main(args), 0)
+                # Altered C++ content must fail even when its hash comment is intact.
+                output.write_bytes(generated.replace(b'"Save"', b'"SavE"').replace(b"\n", b"\r\n"))
+                self.assertEqual(generator.main(args), 1)
+                output.write_bytes(generated.replace(b"\n", b"\r\n"))
+                source.write_bytes(source_bytes.replace("저장".encode(), "저장하기".encode()).replace(b"\n", b"\r\n"))
+                self.assertEqual(generator.main(args), 1)
+
 
 class CppIntegrationTests(unittest.TestCase):
     def test_constexpr_fallback_and_fmt(self) -> None:

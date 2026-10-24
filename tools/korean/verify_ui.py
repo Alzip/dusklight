@@ -21,7 +21,7 @@ import sys
 # The verifier does not create a local __pycache__ while importing the shared
 # dictionary validator. CI and local checks leave project files untouched.
 sys.dont_write_bytecode = True
-from generate_strings import DictionaryError, generate, load_dictionary
+from generate_strings import DictionaryError, generate, load_dictionary, normalize_line_endings
 
 
 BASELINE = "40457c6adb381928e4b5fef6ed459ed291edd5e2"
@@ -364,7 +364,10 @@ def compare_source(name: str, source: str, expected: str, dictionary: dict[str, 
 def verify(root: Path) -> dict[str, object]:
     source = (root / "res/localization/ko.json").read_bytes()
     dictionary = load_dictionary(source)
-    require((root / (UI + "korean_strings.inc")).read_bytes() == generate(source).encode("ascii"), "Generated Korean table is stale")
+    # Git may check out JSON and this generated ASCII file with Windows CRLF.
+    # Normalize physical line endings only; escaped literal contents stay exact.
+    generated_bytes = (root / (UI + "korean_strings.inc")).read_bytes()
+    require(normalize_line_endings(generated_bytes) == generate(source).encode("ascii"), "Generated Korean table is stale")
     font = FontCmap((root / "res/NanumGothic-Regular.ttf").read_bytes())
     wanted = sorted({ord(ch) for text in dictionary.values() for ch in text if ord(ch) >= 128})
     missing = [f"U+{cp:04X} {chr(cp)!r}" for cp in wanted if not font.contains(cp)]

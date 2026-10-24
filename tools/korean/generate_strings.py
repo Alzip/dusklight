@@ -180,7 +180,14 @@ def cpp_string(text: str) -> str:
     return "".join(escaped)
 
 
+def normalize_line_endings(data: bytes) -> bytes:
+    # Git's Windows checkout may use CRLF. Normalize actual line endings only;
+    # JSON/C++ escape sequences such as the bytes '\\r\\n' remain unchanged.
+    return data.replace(b"\r\n", b"\n")
+
+
 def generate(source: bytes) -> str:
+    source = normalize_line_endings(source)
     strings = load_dictionary(source)
     ordered = sorted(strings.items(), key=lambda pair: pair[0].encode("utf-8"))
     lines = [
@@ -204,7 +211,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         generated = generate(args.input.read_bytes())
         if args.check:
-            if not args.output.is_file() or args.output.read_bytes() != generated.encode("ascii"):
+            if not args.output.is_file() or normalize_line_endings(args.output.read_bytes()) != generated.encode("ascii"):
                 raise DictionaryError(f"{args.output}: missing or stale; run generate_strings.py")
         else:
             args.output.parent.mkdir(parents=True, exist_ok=True)
